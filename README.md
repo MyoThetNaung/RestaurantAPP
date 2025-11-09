@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## PulseBite · Restaurant Ordering System
 
-## Getting Started
+A polished, multi-persona restaurant experience powered by **Next.js 16**, **Firebase**, **TailwindCSS v4**, and **Shadcn/UI**.
 
-First, run the development server:
+The platform ships with three demo environments:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `Admin Control` – analytics, live order queue, and menu management.
+- `Kitchen Display` – focused ticket rail with priority filters and pass actions.
+- `Guest Menu` – mobile-first QR ordering with a curated, interactive menu.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Frontend:** Next.js App Router, TypeScript, TailwindCSS v4, Shadcn/UI, lucide-react icons
+- **State & Auth:** Firebase Auth + Firestore (realtime-ready via hooks)
+- **Styling:** Modern glassmorphism vibes, gradient treatments, dark-mode aware
+- **Deployment:** Optimised for Vercel (edge-ready)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Quickstart
 
-## Learn More
+1. Install dependencies
 
-To learn more about Next.js, take a look at the following resources:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. Configure Firebase by populating `.env.local` (already scaffolded) with these public values:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```env
+   NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyC9Q-M_GsQrrG8dKAWGVsnX3XkZO2LlUkU
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=restaurant-f01ac.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=restaurant-f01ac
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=restaurant-f01ac.firebasestorage.app
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=864105851973
+   NEXT_PUBLIC_FIREBASE_APP_ID=1:864105851973:web:99c47746f7b8381091472c
+   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-891LLM9S84
+   ```
 
-## Deploy on Vercel
+3. Run the dev server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Explore the demos:
+   - http://localhost:3000 – welcome portal (panel selection)
+   - http://localhost:3000/admin – admin control room (email/password auth)
+   - http://localhost:3000/kitchen – kitchen display (email/password auth)
+   - http://localhost:3000/table/demo – guest QR menu preview (replace `demo` with a Firestore table id)
+
+## Next Steps
+
+- Wire the static data models to live Firestore collections (orders, menu, tables).
+- Add Firebase Auth guards (admin, kitchen, guest roles) via middleware.
+- Layer in analytics charts (e.g., Recharts or Tremor) for richer insights.
+- Deploy to Vercel and configure environment variables in the dashboard.
+
+---
+
+Crafted with care. Feel free to adapt layouts, hook into realtime Firestore listeners, and extend flows like payments and table management. Enjoy!
