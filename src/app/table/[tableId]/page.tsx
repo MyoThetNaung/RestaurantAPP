@@ -14,14 +14,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
@@ -30,7 +23,13 @@ import { createOrder, watchMenu, watchLatestOrderForTable } from "@/lib/firestor
 import { db } from "@/lib/firebase";
 import { formatCurrency } from "@/lib/format";
 import type { MenuItem, Order, OrderItem, Table } from "@/lib/types";
-import { Heart, Minus, Plus, Sparkles, Star } from "lucide-react";
+import { Heart, Minus, Plus, Star } from "lucide-react";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 type CartState = Record<string, number>;
 
@@ -47,6 +46,7 @@ export default function CustomerTablePage() {
   const [activeOrder, setActiveOrder] = useState<Order | null>(null);
   const [activeOrderItems, setActiveOrderItems] = useState<OrderItem[]>([]);
   const [note, setNote] = useState("");
+  const [activeCategory, setActiveCategory] = useState("");
 
   // Subscribe to table metadata
   useEffect(() => {
@@ -111,6 +111,16 @@ export default function CustomerTablePage() {
       items,
     }));
   }, [menuItems]);
+
+  useEffect(() => {
+    if (!sections.length) {
+      setActiveCategory("");
+      return;
+    }
+    if (!activeCategory || !sections.some((section) => section.id === activeCategory)) {
+      setActiveCategory(sections[0].id);
+    }
+  }, [sections, activeCategory]);
 
   const totalItems = useMemo(
     () => Object.values(cart).reduce((sum, count) => sum + count, 0),
@@ -241,117 +251,117 @@ export default function CustomerTablePage() {
             </CardDescription>
           </Card>
         ) : (
-          <>
-            <ScrollArea className="rounded-full border border-white/70 bg-white/80 py-2 shadow-sm shadow-orange-200/40 backdrop-blur dark:border-white/10 dark:bg-white/10">
-              <div className="flex items-center gap-2 px-4">
-                {sections.map((section) => (
-                  <a
-                    key={section.id}
-                    href={`#${section.id}`}
-                    className={cn(
-                      "flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500/60",
-                      "text-slate-600 hover:bg-orange-100/60 dark:text-slate-300 dark:hover:bg-white/10",
-                    )}
-                  >
-                    <Sparkles className="h-4 w-4 text-orange-500" />
-                    {section.title}
-                  </a>
-                ))}
-              </div>
-            </ScrollArea>
-
-            <div className="space-y-12">
+          <Tabs
+            value={activeCategory}
+            onValueChange={setActiveCategory}
+            className="space-y-6"
+          >
+            <TabsList className="no-scrollbar flex w-full gap-2 overflow-x-auto rounded-full border border-white/70 bg-white/80 p-2 shadow-sm shadow-orange-200/30 backdrop-blur dark:border-white/10 dark:bg-white/10">
               {sections.map((section) => (
-                <section key={section.id} id={section.id} className="space-y-6">
-                  <div className="flex items-start justify-between gap-6">
-                    <div>
-                      <h2 className="text-2xl font-semibold">{section.title}</h2>
-                      <p className="mt-2 text-base text-slate-600 dark:text-slate-300">
-                        Crafted by our chefs, refreshed throughout the night.
-                      </p>
-                    </div>
-                    <Badge className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-semibold uppercase text-orange-500 dark:bg-orange-500/20 dark:text-orange-200">
-                      Seasonal
-                    </Badge>
-                  </div>
-
-                  <div className="grid gap-5 md:grid-cols-2">
-                    {section.items.map((item) => {
-                      const quantity = cart[item.id] ?? 0;
-                      return (
-                        <Card
-                          key={item.id}
-                          className="relative overflow-hidden border border-white/70 bg-white/80 shadow-lg shadow-orange-200/20 transition hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-white/10 dark:shadow-black/30"
-                        >
-                          <div className="pointer-events-none absolute inset-x-4 top-4 h-28 rounded-3xl bg-gradient-to-br from-orange-300/40 via-amber-300/40 to-rose-300/40 blur-2xl dark:from-orange-500/10 dark:via-amber-500/10 dark:to-rose-500/10" />
-                          <CardHeader className="relative z-10 space-y-2">
-                            <div className="flex items-center justify-between gap-3">
-                              <CardTitle className="text-xl font-semibold text-slate-900 dark:text-white">
-                                {item.name}
-                              </CardTitle>
-                              {item.image ? (
-                                <Image
-                                  src={item.image}
-                                  alt={item.name}
-                                  width={64}
-                                  height={64}
-                                  className="h-16 w-16 rounded-2xl object-cover"
-                                  unoptimized
-                                />
-                              ) : (
-                                <Heart className="h-4 w-4 text-rose-300" />
-                              )}
-                            </div>
-                            <CardDescription className="text-base text-slate-600 dark:text-slate-300">
-                              {item.category ?? "Signature"}
-                            </CardDescription>
-                          </CardHeader>
-                          <CardContent className="relative z-10 space-y-4">
-                            <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-300">
-                              <span>Chef crafted</span>
-                              <span className="font-medium text-slate-900 dark:text-white">
-                                {formatCurrency(item.price)}
-                              </span>
-                            </div>
-                            <Separator className="border-dashed border-white/70 dark:border-white/10" />
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2 rounded-full border border-orange-200/70 bg-white/80 p-1 shadow-sm dark:border-white/10 dark:bg-white/10">
-                                <Button
-                                  size="icon"
-                                  variant="ghost"
-                                  className="h-8 w-8 rounded-full text-slate-500 hover:bg-orange-50 dark:text-slate-200 dark:hover:bg-white/10"
-                                  onClick={() => removeItem(item.id)}
-                                  disabled={quantity === 0}
-                                >
-                                  <Minus className="h-4 w-4" />
-                                </Button>
-                                <span className="min-w-[2ch] text-center text-sm font-semibold text-slate-800 dark:text-white">
-                                  {quantity}
-                                </span>
-                                <Button
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 text-white hover:from-orange-600 hover:via-amber-600 hover:to-rose-600"
-                                  onClick={() => addItem(item.id)}
-                                >
-                                  <Plus className="h-4 w-4" />
-                                </Button>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                className="rounded-full text-sm font-semibold text-orange-500 hover:text-orange-600 dark:text-orange-200 dark:hover:text-orange-100"
-                              >
-                                More details
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </section>
+                <TabsTrigger
+                  key={section.id}
+                  value={section.id}
+                  className="rounded-full px-4 py-2 text-sm font-semibold text-slate-600 transition data-[state=active]:bg-slate-900 data-[state=active]:text-white dark:text-slate-300 dark:data-[state=active]:bg-white dark:data-[state=active]:text-slate-900"
+                >
+                  {section.title}
+                </TabsTrigger>
               ))}
-            </div>
-          </>
+            </TabsList>
+
+            {sections.map((section) => (
+              <TabsContent
+                key={section.id}
+                value={section.id}
+                className="space-y-4 focus-visible:outline-none"
+              >
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                    {section.title}
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-300">
+                    Crafted tonight, perfect for sharing.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {section.items.map((item) => {
+                    const quantity = cart[item.id] ?? 0;
+                    return (
+                      <Card
+                        key={item.id}
+                        className="flex flex-col justify-between gap-4 rounded-2xl border border-white/70 bg-white/85 p-4 shadow-sm shadow-orange-200/20 backdrop-blur dark:border-white/10 dark:bg-white/10"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <CardTitle className="text-base font-semibold text-slate-900 dark:text-white">
+                              {item.name}
+                            </CardTitle>
+                            <CardDescription className="text-sm text-slate-500 dark:text-slate-300">
+                              {item.category ?? "Chef's Pick"}
+                            </CardDescription>
+                          </div>
+                          {item.image ? (
+                            <Image
+                              src={item.image}
+                              alt={item.name}
+                              width={56}
+                              height={56}
+                              className="h-14 w-14 rounded-xl object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-orange-100 text-orange-500 dark:bg-orange-500/10 dark:text-orange-200">
+                              <Heart className="h-5 w-5" />
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-2 text-sm text-slate-500 dark:text-slate-300">
+                          <p className="flex items-center justify-between font-semibold text-slate-900 dark:text-white">
+                            <span>Price</span>
+                            <span>{formatCurrency(item.price)}</span>
+                          </p>
+                          {item.category ? (
+                            <p className="text-xs uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+                              {item.category}
+                            </p>
+                          ) : null}
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 rounded-full border border-orange-200/70 bg-white/90 p-1 shadow-sm dark:border-white/10 dark:bg-white/10">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8 rounded-full text-slate-500 hover:bg-orange-50 dark:text-slate-200 dark:hover:bg-white/10"
+                              onClick={() => removeItem(item.id)}
+                              disabled={quantity === 0}
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="min-w-[2ch] text-center text-sm font-semibold text-slate-800 dark:text-white">
+                              {quantity}
+                            </span>
+                            <Button
+                              size="icon"
+                              className="h-8 w-8 rounded-full bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 text-white hover:from-orange-600 hover:via-amber-600 hover:to-rose-600"
+                              onClick={() => addItem(item.id)}
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            className="rounded-full text-sm text-orange-500 hover:text-orange-600 dark:text-orange-200 dark:hover:text-orange-100"
+                          >
+                            Details
+                          </Button>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
         )}
       </main>
 
