@@ -485,33 +485,46 @@ export default function CustomerTablePage() {
                       </>
                     ) : activeOrder ? (
                       <div className="space-y-6">
-                        <div>
+                        <section>
                           <h4 className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">
                             Status
                           </h4>
-                          <div className="mt-4 flex items-center gap-3">
-                            {STATUS_STEPS.map((status, index) => (
-                              <div key={status} className="flex items-center gap-3">
+                          <div className="mt-4 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-start sm:gap-4">
+                            {STATUS_STEPS.map((status, index) => {
+                              const isComplete = index <= statusIndex;
+                              return (
                                 <div
+                                  key={status}
                                   className={cn(
-                                    "flex h-10 w-10 items-center justify-center rounded-full border text-xs font-semibold",
-                                    index <= statusIndex
-                                      ? "border-emerald-400 bg-emerald-400 text-slate-900"
-                                      : "border-white/40 bg-white/10 text-slate-400",
+                                    "flex items-center gap-3 rounded-2xl border border-white/60 bg-white/80 p-3 text-xs shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10 sm:w-48 sm:flex-col sm:gap-2 sm:text-center",
+                                    isComplete
+                                      ? "border-emerald-400/70 bg-emerald-400/10 dark:border-emerald-300/40 dark:bg-emerald-300/10"
+                                      : "",
                                   )}
                                 >
-                                  {index + 1}
+                                  <div
+                                    className={cn(
+                                      "flex h-8 w-8 items-center justify-center rounded-full border text-[0.7rem] font-semibold transition",
+                                      isComplete
+                                        ? "border-emerald-400 bg-emerald-400 text-slate-900 dark:border-emerald-300 dark:bg-emerald-300"
+                                        : "border-white/50 bg-white/10 text-slate-400 dark:border-white/20",
+                                    )}
+                                  >
+                                    {index + 1}
+                                  </div>
+                                  <span className="font-medium text-slate-600 dark:text-slate-300">
+                                    {status}
+                                  </span>
+                                  {index === statusIndex && (
+                                    <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[0.6rem] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-200">
+                                      In progress
+                                    </span>
+                                  )}
                                 </div>
-                                <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-                                  {status}
-                                </span>
-                                {index < STATUS_STEPS.length - 1 ? (
-                                  <div className="h-px w-10 bg-gradient-to-r from-white/40 to-transparent" />
-                                ) : null}
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
-                        </div>
+                        </section>
                         <div className="space-y-3">
                           <h4 className="text-sm font-semibold uppercase tracking-[0.35em] text-slate-400 dark:text-slate-500">
                             Items
