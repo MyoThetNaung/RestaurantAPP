@@ -77,7 +77,13 @@ function statusBadgeStyles(status: OrderStatus) {
   }
 }
 
-type EditableMenuItem = Pick<MenuItem, "id" | "name" | "price" | "image" | "category">;
+type EditableMenuItem = {
+  id: string;
+  name: string;
+  price: string;
+  image: string;
+  category: string;
+};
 
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -330,10 +336,12 @@ export default function AdminPage() {
     setMenuBusy(true);
     try {
       await updateDoc(doc(db, "menuItems", editingItem.id), {
-        name: editingItem.name,
+        name: editingItem.name.trim(),
         price: Number(editingItem.price),
-        image: editingItem.image ?? null,
-        category: editingItem.category ?? null,
+        image: editingItem.image.trim() ? editingItem.image.trim() : null,
+        category: editingItem.category.trim()
+          ? editingItem.category.trim()
+          : null,
       });
       setEditingItem(null);
     } catch (error) {
@@ -810,7 +818,12 @@ export default function AdminPage() {
                                         value={editingItem.price}
                                         onChange={(event) =>
                                           setEditingItem((prev) =>
-                                            prev ? { ...prev, price: event.target.value } : prev,
+                                            prev
+                                              ? {
+                                                  ...prev,
+                                                  price: event.target.value,
+                                                }
+                                              : prev,
                                           )
                                         }
                                         className="h-10 rounded-xl border-white/60 bg-white/70 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/10"
@@ -819,7 +832,7 @@ export default function AdminPage() {
                                     <div className="grid gap-3 sm:grid-cols-2">
                                       {categories.length ? (
                                         <select
-                                          value={editingItem.category ?? ""}
+                                          value={editingItem.category}
                                           onChange={(event) =>
                                             setEditingItem((prev) =>
                                               prev
@@ -847,7 +860,7 @@ export default function AdminPage() {
                                       ) : (
                                         <Input
                                           placeholder="Category"
-                                          value={editingItem.category ?? ""}
+                                          value={editingItem.category}
                                           onChange={(event) =>
                                             setEditingItem((prev) =>
                                               prev
@@ -860,7 +873,7 @@ export default function AdminPage() {
                                       )}
                                       <Input
                                         placeholder="Image URL"
-                                        value={editingItem.image ?? ""}
+                                        value={editingItem.image}
                                         onChange={(event) =>
                                           setEditingItem((prev) =>
                                             prev ? { ...prev, image: event.target.value } : prev,
